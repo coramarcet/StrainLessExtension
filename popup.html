@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<style>
+    .seat {
+        position: relative;
+        width: 900px;
+        height: 450px;
+        margin: auto;
+        border: 1px solid #000000;
+    }
+    canvas {
+        position: absolute;
+        width: 300px;
+        height: 150px;
+    }
+
+    #canvas1 { top: 0; left: 50%; transform: translateX(-50%); } /* top */
+    #canvas2 { top: 50%; left: 100%; transform: translate(-100%, -50%); transform: translate(-100%, -50%) rotate(90deg); } /* right */
+    #canvas3 { bottom: 0; left: 50%; transform: translateX(-50%); } /* bottom */
+    #canvas4 { top: 50%; left: 0; transform: translate(-0%, -50%); transform: translate(0, -50%) rotate(-90deg); } /* left */
+</style>
+<html>
+    <head>
+        <script src="popup.js"></script>
+    </head>
+    <body>
+        <h1>StrainLess</h1>
+        <button id="button">Send Notification</button>
+        <button id="deviationRequestButton">Deviation</button>
+        <button id="setSeatBaseline">Set Seat Baseline</button>
+        <button id="blinkRequestButton">Get Updated Blink Count Value</button>
+        <button id="setNeckAngleBaseline">Set Neck Angle Baseline</button>
+        <button id="changeDataButton">Change Graph Data</button>
+        <p id="response">Loading...</p>
+
+        <input type="checkbox" id="overlayToggle" name="overlayToggleName">
+        <label for="overlayToggleName">Toggle Screen Brightness</label>
+        <input type="range" min="0" max="1" step= "0.01" id="slider">
+        <p id="val"></p>
+
+        <div class="seat">
+            <canvas id="canvas1" width="300" height="150">Error</canvas>
+            <canvas id="canvas2" width="300" height="150">Error</canvas>
+            <canvas id="canvas3" width="300" height="150">Error</canvas>
+            <canvas id="canvas4" width="300" height="150">Error</canvas>
+        </div>
+        <button id="changeShapeButton">Change Shape</button>
+        <iframe id="frame" src="sandbox.html" sandbox="allow-scripts allow-same-origin" width="100%" height="400"style="border: none;"></iframe>
+    </body>
+</html>

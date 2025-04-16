@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sandbox Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="chart" width="400" height="200"></canvas>
+  <script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    let val = 30;
+
+    window.addEventListener("message", function(event) {
+        if(event.data.data) {
+            val = event.data.data
+        }
+        changed_data = true
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['A', 'B', 'C'],
+                datasets: [{
+                    label: 'Example',
+                    data: [10, 20, val],
+                    backgroundColor: ['red', 'blue', 'green']
+                }]
+            }
+        });
+    });
+  </script>
+</body>
+</html>

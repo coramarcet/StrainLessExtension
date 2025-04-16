@@ -1,0 +1,31 @@
+{
+    "name": "StrainLess browser extension",
+    "description": "Provides a notification if user exhibits poor posture as measured by sensors.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": ["notifications", "scripting", "tabs"],
+    "host_permissions": ["http://172.26.192.18:5000/*"],
+    "content_scripts": [
+        {
+            "js": ["content.js"],
+            "css": ["content.css"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "sandbox": {
+        "pages": ["sandbox.html"]
+    },
+    "web_accessible_resources": [
+        {
+          "resources": ["sandbox.html"],
+          "matches": ["<all_urls>"]
+        }
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self';",
+        "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self'; script-src-elem https://cdn.jsdelivr.net/npm/chart.js 'unsafe-inline'"
+  }
+}
