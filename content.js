@@ -32,7 +32,7 @@ function gotMessage(message) {
     }
     else {
         if(message.toggle) {
-            on(1 - message.value);
+            on(0.75);
         }
         else if(!(message.toggle)) {
             off();

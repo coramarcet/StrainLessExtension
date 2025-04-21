@@ -8,24 +8,31 @@
   <canvas id="chart" width="400" height="200"></canvas>
   <script>
     const ctx = document.getElementById('chart').getContext('2d');
-    let val = 30;
+    let vals = [0, 0, 0]
+
+    //create chart
+    myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['', '', ''],
+        datasets: [{
+          label: 'Blink Rate Over Past 3 Minutes',
+          data: vals,
+          backgroundColor: ['red', 'blue', 'green']
+        }]
+      }
+    });
 
     window.addEventListener("message", function(event) {
-        if(event.data.data) {
-            val = event.data.data
-        }
-        changed_data = true
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['A', 'B', 'C'],
-                datasets: [{
-                    label: 'Example',
-                    data: [10, 20, val],
-                    backgroundColor: ['red', 'blue', 'green']
-                }]
-            }
-        });
+      //update chart
+      if(event.data.updated_value) {
+        //document.getElementById('test').innerText = event.data.updated_value
+        vals[0] = vals[1]
+        vals[1] = vals[2]
+        vals[2] = event.data.updated_value
+        myChart.data.datasets[0].data = vals;
+        myChart.update();
+      }
     });
   </script>
 </body>
