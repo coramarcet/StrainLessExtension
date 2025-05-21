@@ -6,32 +6,82 @@
 </head>
 <body>
   <canvas id="chart" width="400" height="200"></canvas>
+  <canvas id="chartNeck" width="400" height="200"></canvas>
   <script>
     const ctx = document.getElementById('chart').getContext('2d');
+    const ctxNeck = document.getElementById('chartNeck').getContext('2d');
     let vals = [0, 0, 0]
+    let vals_neck = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    //create chart
-    myChart = new Chart(ctx, {
+    //initialize chart for blink rate
+    blinkRateChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['', '', ''],
+        labels: ['-3', '-2', '-1'],
         datasets: [{
-          label: 'Blink Rate Over Past 3 Minutes',
+          label: 'Blink Rate',
           data: vals,
           backgroundColor: ['red', 'blue', 'green']
         }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Blink Rate Over Past 3 Minutes'
+          }
+        }
+      }
+    });
+
+    //initialize chart for neck angle
+    neckAngleChart = new Chart(ctxNeck, {
+      type: 'line',
+      data: {
+        labels: ['-60', '-54', '-48', '-42', '-36', '-30', '-24', '-18', '-12', '-6'],
+        datasets: [{
+          label: 'Neck Angle',
+          data: vals_neck
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Neck Angle Over Past 1 Minute'
+          }
+        }
       }
     });
 
     window.addEventListener("message", function(event) {
-      //update chart
-      if(event.data.updated_value) {
-        //document.getElementById('test').innerText = event.data.updated_value
-        vals[0] = vals[1]
-        vals[1] = vals[2]
-        vals[2] = event.data.updated_value
-        myChart.data.datasets[0].data = vals;
-        myChart.update();
+      const { type, updated_value } = event.data;
+
+      //update chart for blink rate
+      if(type === 'blink' && updated_value) {
+        vals[0] = vals[1];
+        vals[1] = vals[2];
+        vals[2] = event.data.updated_value;
+        blinkRateChart.data.datasets[0].data = vals;
+        blinkRateChart.update();
+      }
+
+      //update chart for neck angle
+      if(type === 'neck' && updated_value) {
+        vals_neck[0] = vals_neck[1];
+        vals_neck[1] = vals_neck[2];
+        vals_neck[2] = vals_neck[3];
+        vals_neck[3] = vals_neck[4];
+        vals_neck[4] = vals_neck[5];
+        vals_neck[5] = vals_neck[6];
+        vals_neck[6] = vals_neck[7];
+        vals_neck[7] = vals_neck[8];
+        vals_neck[8] = vals_neck[9];
+        vals_neck[9] = event.data.updated_value;
+        neckAngleChart.data.datasets[0].data = vals_neck;
+        neckAngleChart.update();
       }
     });
   </script>

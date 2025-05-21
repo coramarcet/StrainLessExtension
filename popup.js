@@ -1,12 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     //button constants
-    const button = document.getElementById('button');
+    //const button = document.getElementById('button');
     const deviationRequest = document.getElementById('deviationRequestButton');
     const setSeatBaselineButton = document.getElementById('setSeatBaseline');
-    const changeShapeButton = document.getElementById('changeShapeButton');
     const blinkRequestButton = document.getElementById('blinkRequestButton');
     const setNeckAngleBaselineButton = document.getElementById('setNeckAngleBaseline');
-    const changeDataButton = document.getElementById('changeDataButton');
     const getUpdatedNeckAngleButton = document.getElementById('neckAngleRequestButton');
 
     //load images for seat heat map display
@@ -26,8 +24,24 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'basic',
         title: 'StrainLess',
         message: 'Please correct your posture.',
-        iconUrl: 'icon.png'
+        iconUrl: 'icon seat.png'
     };
+
+    //options for system tray notification for neck angle alert
+    const optionsNeck = {
+        type: 'basic',
+        title: 'StrainLess',
+        message: 'Consider making your head more upright.',
+        iconUrl: 'icon neck.png'
+    }
+
+    //options for system tray notification for blink alert
+    const optionsBlink = {
+        type: 'basic',
+        title: 'StrainLess',
+        message: 'Consider looking away from the screen, you are exhibiting symptoms of eye strain.',
+        iconUrl: 'icon blink.jpg'
+    }
 
     //load images
     img.addEventListener('load', () => {
@@ -46,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(data.deviations[1] === '1') {
                     //turn top oval red
                     c1.getContext('2d').drawImage(imgFilled, 0, 0);
-                    chrome.notifications.create(options);
+                    //chrome.notifications.create(options);
                 }
                 if(data.deviations[1] === '0') {
                     //turn top oval white
@@ -55,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(data.deviations[4] === '1') {
                     //turn right oval red
                     c2.getContext('2d').drawImage(imgFilled, 0, 0);
-                    chrome.notifications.create(options);
+                    //chrome.notifications.create(options);
                 }
                 if(data.deviations[4] === '0') {
                     //turn right oval white
@@ -64,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(data.deviations[7] === '1') {
                     //turn left oval red
                     c4.getContext('2d').drawImage(imgFilled, 0, 0);
-                    chrome.notifications.create(options);
+                    //chrome.notifications.create(options);
                 }
                 if(data.deviations[7] === '0') {
                     //turn left oval white
@@ -73,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(data.deviations[10] === '1') {
                     //turn bottom oval red
                     c3.getContext('2d').drawImage(imgFilled, 0, 0);
-                    chrome.notifications.create(options);
+                    //chrome.notifications.create(options);
                 }
                 if(data.deviations[10] === '0') {
                     //turn bottom oval white
@@ -83,23 +97,70 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error:', error));
     }
 
+    function sendRequestAverage() {
+        fetch('http://172.26.192.18:5000/average_deviation')
+            .then(response => response.json())
+            .then(data => {
+                //document.getElementById('response').innerText = data.deviations;
+                if(data.average_devs[1] === '1') {
+                    //turn top oval red
+                    //c1.getContext('2d').drawImage(imgFilled, 0, 0);
+                    chrome.notifications.create(options);
+                }
+                if(data.average_devs[1] === '0') {
+                    //turn top oval white
+                    //c1.getContext('2d').drawImage(img, 0, 0);
+                }
+                if(data.average_devs[4] === '1') {
+                    //turn right oval red
+                    //c2.getContext('2d').drawImage(imgFilled, 0, 0);
+                    chrome.notifications.create(options);
+                }
+                if(data.average_devs[4] === '0') {
+                    //turn right oval white
+                    //c2.getContext('2d').drawImage(img, 0, 0);
+                }
+                if(data.average_devs[7] === '1') {
+                    //turn left oval red
+                    //c4.getContext('2d').drawImage(imgFilled, 0, 0);
+                    chrome.notifications.create(options);
+                }
+                if(data.average_devs[7] === '0') {
+                    //turn left oval white
+                    //c4.getContext('2d').drawImage(img, 0, 0);
+                }
+                if(data.average_devs[10] === '1') {
+                    //turn bottom oval red
+                    //c3.getContext('2d').drawImage(imgFilled, 0, 0);
+                    chrome.notifications.create(options);
+                }
+                if(data.average_devs[10] === '0') {
+                    //turn bottom oval white
+                    //c3.getContext('2d').drawImage(img, 0, 0);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
     //send test notification
-    button.addEventListener('click', () => {
-        chrome.notifications.create(options);
-    })
+    //button.addEventListener('click', () => {
+    //    chrome.notifications.create(optionsBlink);
+    //})
 
     function getBlink() {
         fetch('http://172.26.192.18:5000/request_blink')
             .then(response => response.json())
             .then(data => {
-                //val_to_send = parseInt(data.message);
                 //document.getElementById('response').innerText = data.message;
-                //if there is an updated blink value to report, then change graph data (send postmessage from extension to sandbox)
-                //if(data.message !== 'no update right now') {
-                //    var message = { updated_value: int(data.message) };
-                //    iframe.contentWindow.postMessage(message, '*');
-                //}
-                var message = { updated_value: parseInt(data.message) };
+                //send notification to take break from screen if user's blink rate is under 10 blinks/minute
+                if(parseInt(data.message) < 10) {
+                    chrome.notifications.create(optionsBlink);
+                }
+                //send message to sandbox.html to update graph
+                var message = {
+                    type: 'blink',
+                    updated_value: parseInt(data.message)
+                };
                 iframe.contentWindow.postMessage(message, '*');
             })
             .catch(error => console.error('Error:', error));
@@ -115,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('http://172.26.192.18:5000/save')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('response').innerText = data.message;
+                //document.getElementById('response').innerText = data.message;
             })
             .catch(error => console.error('Error:', error));
     })
@@ -124,22 +185,23 @@ document.addEventListener('DOMContentLoaded', () => {
     deviationRequest.addEventListener('click', () => {
         //calls sendRequest function every 2.5 seconds
         setInterval(sendRequest, 2500);
+        setInterval(sendRequestAverage, 2500);
     })
 
     //change shape displayed
-    changeShapeButton.addEventListener('click', () => {
-        c1.getContext('2d').drawImage(imgFilled, 0, 0);
-        c2.getContext('2d').drawImage(imgFilled, 0, 0);
-        c3.getContext('2d').drawImage(imgFilled, 0, 0);
-        c4.getContext('2d').drawImage(imgFilled, 0, 0);
-    })
+    //changeShapeButton.addEventListener('click', () => {
+    //    c1.getContext('2d').drawImage(imgFilled, 0, 0);
+    //    c2.getContext('2d').drawImage(imgFilled, 0, 0);
+    //    c3.getContext('2d').drawImage(imgFilled, 0, 0);
+    //    c4.getContext('2d').drawImage(imgFilled, 0, 0);
+    //})
 
     //send request to server to set baseline for neck angle
     setNeckAngleBaselineButton.addEventListener('click', () => {
         fetch('http://172.26.192.18:5000/neck_angle_calibration')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('response').innerText = data.message;
+                //document.getElementById('response').innerText = data.message;
             })
             .catch(error => console.error('Error:', error));
     })
@@ -149,19 +211,21 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('http://172.26.192.18:5000/get_updated_neck_angle', {method: 'POST'})
             .then(response => response.json())
             .then(data => {
-                document.getElementById('response').innerText = data.message;
+                //document.getElementById('response').innerText = data.message;
+                if(data.neck_alert) {
+                    chrome.notifications.create(optionsNeck);
+                }
+                var message = {
+                    type: 'neck',
+                    updated_value: parseInt(data.message)
+                };
+                iframe.contentWindow.postMessage(message, '*');
             })
             .catch(error => console.error('Error:', error));
     }
 
     getUpdatedNeckAngleButton.addEventListener('click', () => {
-        setInterval(sendRequestNeckAngle, 2500);
-    })
-
-    //change data on graph (demonstrates exchange between main extension code and sandbox)
-    changeDataButton.addEventListener('click', () => {
-        var message = { updated_value: 15 };
-        iframe.contentWindow.postMessage(message, '*');
+        setInterval(sendRequestNeckAngle, 6000);
     })
 
     function fetchVal(tabs) {
@@ -177,8 +241,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const date = new Date();
-    //const hour = date.getHours();
-    const hour = 2;
+    const hour = date.getHours();
+    //const hour = 2;
     //if between the hours of 7 pm and 6 am, dim tabs to reduce eye strain
     if(hour >= 19 || hour <= 6) {
         //get tabs information
